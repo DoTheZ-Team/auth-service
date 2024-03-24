@@ -7,15 +7,6 @@ assignees: ''
 
 ---
 
----
-name: Feature request
-about: Feature 작업 사항을 입력해주세요.
-title: ''
-labels: ''
-assignees: ''
-
----
-
 ## ✅ 구현할 기능
 - 구현할 기능을 적어주세요
 
