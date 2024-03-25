@@ -12,6 +12,8 @@ public class AuthController {
     @GetMapping("/login")
     public String kakaoLogin(@RequestParam String code) {
 
+
+
         return "redirect:/";
     }
 }

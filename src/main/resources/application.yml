@@ -1,0 +1,7 @@
+kakao:
+  token_uri: https://kauth.kakao.com/oauth/token
+  redirect_uri: https://localhost:3000/login
+  grant_type: authorization_code
+  client_id: 6e8e0a7e5f26d44329fb9652038ae778
+  user_into_uri : https://kapi.kakao.com/v2/user/me
+
