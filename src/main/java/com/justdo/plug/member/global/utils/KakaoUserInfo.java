@@ -12,15 +12,13 @@ import reactor.core.publisher.Flux;
 public class KakaoUserInfo {
     private final WebClient webClient = WebClient.create();
 
-    // 값 application.yml로 옮기기
     @Value("${kakao.user_into_uri}")
     private String userInfoUri;
 
     public KakaoUserInfoResponse getUserInfo(String token) {
-        String uri = userInfoUri;
 
         Flux<KakaoUserInfoResponse> response = webClient.get()
-                .uri(uri)
+                .uri(userInfoUri)
                 .header("Authorization", "Bearer " + token)
                 .retrieve()
                 .bodyToFlux(KakaoUserInfoResponse.class);

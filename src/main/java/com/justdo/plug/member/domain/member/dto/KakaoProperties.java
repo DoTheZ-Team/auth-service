@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 public class KakaoProperties {
     private String nickname;
-    private String profileImage;
-    private String thumbnailImage;
+    private String profile_image;
+    private String thumbnail_image;
 }

@@ -4,12 +4,12 @@ import lombok.Data;
 
 @Data
 public class KakaoAccount {
-    private boolean profileNicknameNeedsAgreement;
-    private boolean profileImageNeedsAgreement;
+    private boolean profile_nickname_needs_agreement;
+    private boolean profile_image_needs_agreement;
     private KakaoProfile profile;
-    private boolean hasEmail;
-    private boolean emailNeedsAgreement;
-    private boolean isEmailValid;
-    private boolean isEmailVerified;
+    private boolean has_email;
+    private boolean email_needs_agreement;
+    private boolean is_email_valid;
+    private boolean is_email_verified;
     private String email;
 }

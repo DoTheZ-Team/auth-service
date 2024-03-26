@@ -1,7 +1,37 @@
 kakao:
   token_uri: https://kauth.kakao.com/oauth/token
-  redirect_uri: https://localhost:3000/login
+  redirect_uri: http://localhost:3000/login
   grant_type: authorization_code
   client_id: 6e8e0a7e5f26d44329fb9652038ae778
   user_into_uri : https://kapi.kakao.com/v2/user/me
 
+jwt:
+  secret: ZOs2kmQNdL/+yB4bI63AuIujKFOWzZJaHKq+kWCcZBE=
+
+spring:
+  # H2 Database 설정
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:tcp://localhost/~/test   # H2 DB 연결 주소 (In-Memory Mode)
+    #rl: 'jdbc:h2:~/test'    # H2 DB 연결 주소 (Embedded Mode)
+    username: sa
+    password:
+
+
+
+  # H2 Console 설정
+  h2:
+    console: # H2 DB를 웹에서 관리할 수 있는 기능
+      enabled: true           # H2 Console 사용 여부
+      path: /h2-console       # H2 Console 접속 주소
+
+  # JPA 설정
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create        # DB 초기화 전략 (none, create, create-drop, update, validate)
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true      # 쿼리 로그 포맷 (정렬)
+        show_sql: true        # 쿼리 로그 출력

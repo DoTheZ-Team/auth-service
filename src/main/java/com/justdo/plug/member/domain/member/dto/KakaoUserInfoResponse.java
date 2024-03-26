@@ -7,5 +7,5 @@ public class KakaoUserInfoResponse {
     private Long id;
     private String connectedAt;
     private KakaoProperties properties;
-    private KakaoAccount kakaoAccount;
+    private KakaoAccount kakao_account;
 }
