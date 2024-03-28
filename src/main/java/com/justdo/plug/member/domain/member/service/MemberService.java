@@ -5,7 +5,6 @@ import com.justdo.plug.member.domain.member.dto.JwtTokenResponse;
 import com.justdo.plug.member.domain.member.dto.KakaoTokenResponse;
 import com.justdo.plug.member.domain.member.dto.KakaoUserInfoResponse;
 import com.justdo.plug.member.domain.member.repository.MemberRepository;
-import com.justdo.plug.member.global.response.ApiResponse;
 import com.justdo.plug.member.global.utils.KakaoTokenJsonData;
 import com.justdo.plug.member.global.utils.KakaoUserInfo;
 import com.justdo.plug.member.global.utils.jwt.JwtTokenProvider;
@@ -35,14 +34,25 @@ public class MemberService {
         return memberRepository.existsById(id);
     }
 
-    public void saveMember(Member member) {
-        memberRepository.save(member);
-    }
-
     public JwtTokenResponse processKakaoLogin(String code) {
         KakaoTokenResponse tokenResponse = kakaoTokenJsonData.getToken(code);
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(tokenResponse.getAccess_token());
 
+        handleUserRegistration(userInfo);
+
+        String accessToken = jwtTokenProvider.generateAccessToken(userInfo.getId());
+        String refreshToken = jwtTokenProvider.generateRefreshToken();
+
+        redisTemplate.opsForValue().set(String.valueOf(userInfo.getId()), refreshToken,
+                REFRESH_TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
+
+        return JwtTokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken).build();
+    }
+
+
+    private void handleUserRegistration(KakaoUserInfoResponse userInfo) {
         if (!existsById(userInfo.getId())) {
             Member newMember = Member.builder()
                     .id(userInfo.getId())
@@ -52,19 +62,8 @@ public class MemberService {
                     .phone_share_state(false)
                     .build();
 
-            saveMember(newMember);
-        } else {
-            log.info("이미 회원이 존재합니다");
+            memberRepository.save(newMember);
         }
-
-        String accessToken = jwtTokenProvider.generateAccessToken(userInfo.getId());
-        String refreshToken = jwtTokenProvider.generateRefreshToken();
-
-        redisTemplate.opsForValue().set(String.valueOf(userInfo.getId()), refreshToken, REFRESH_TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
-        log.info("refreshToken = {}",redisTemplate.opsForValue().get(String.valueOf(userInfo.getId())));
-
-        return JwtTokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken).build();
     }
+
 }

@@ -2,6 +2,7 @@ package com.justdo.plug.member.global.utils.jwt;
 
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -50,6 +51,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    // 코드 수정 요망
     public boolean isTokenValid(String token) {
         try {
             String keyBase64Encoded = Base64.getEncoder().encodeToString(secretKey.getBytes());
@@ -62,4 +64,5 @@ public class JwtTokenProvider {
             return false;
         }
     }
+
 }

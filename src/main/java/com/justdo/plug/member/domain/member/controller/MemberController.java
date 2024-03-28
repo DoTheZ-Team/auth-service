@@ -7,11 +7,10 @@ import com.justdo.plug.member.domain.member.dto.KakaoUserInfoResponse;
 import com.justdo.plug.member.domain.member.service.MemberService;
 import com.justdo.plug.member.global.response.ApiResponse;
 import com.justdo.plug.member.global.utils.jwt.JwtTokenProvider;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,9 +19,6 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // LOGIN TODO
-    // 1. S3 프로필 이미지 저장
-
     @GetMapping("/login")
     public ApiResponse<JwtTokenResponse> kakaoLogin(@RequestParam String code) {
 
@@ -30,4 +26,5 @@ public class MemberController {
 
         return ApiResponse.onSuccess(response);
     }
+
 }
