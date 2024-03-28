@@ -38,7 +38,7 @@ public class MemberService {
         KakaoTokenResponse tokenResponse = kakaoTokenJsonData.getToken(code);
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(tokenResponse.getAccess_token());
 
-        handleUserRegistration(userInfo);
+        boolean isNew = handleUserRegistration(userInfo);
 
         String accessToken = jwtTokenProvider.generateAccessToken(userInfo.getId());
         String refreshToken = jwtTokenProvider.generateRefreshToken();
@@ -48,11 +48,13 @@ public class MemberService {
 
         return JwtTokenResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken).build();
+                .refreshToken(refreshToken)
+                .isNew(isNew)
+                .build();
     }
 
 
-    private void handleUserRegistration(KakaoUserInfoResponse userInfo) {
+    private boolean handleUserRegistration(KakaoUserInfoResponse userInfo) {
         if (!existsById(userInfo.getId())) {
             Member newMember = Member.builder()
                     .id(userInfo.getId())
@@ -63,7 +65,10 @@ public class MemberService {
                     .build();
 
             memberRepository.save(newMember);
+
+            return true;
         }
+        return false;
     }
 
 }
