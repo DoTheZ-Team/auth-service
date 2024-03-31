@@ -1,10 +1,14 @@
-package com.justdo.plug.member.global.utils;
+package com.justdo.plug.member.global.utils.kakao;
 
-import com.justdo.plug.member.domain.member.dto.KakaoUserInfoResponse;
+import com.justdo.plug.member.domain.member.dto.kakao.KakaoUserInfoResponse;
+import com.justdo.plug.member.global.exception.ApiException;
+import com.justdo.plug.member.global.response.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 
 @RequiredArgsConstructor
@@ -23,6 +27,9 @@ public class KakaoUserInfo {
                 .retrieve()
                 .bodyToFlux(KakaoUserInfoResponse.class);
 
-        return response.blockFirst();
+        return response.onErrorMap(WebClientResponseException.class, ex  -> {
+                return new ApiException(ErrorStatus._KAKAO_USER_INFO_ERROR);})
+                .blockFirst();
+
     }
 }

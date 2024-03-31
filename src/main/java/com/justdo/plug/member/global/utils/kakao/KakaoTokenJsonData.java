@@ -1,13 +1,17 @@
-package com.justdo.plug.member.global.utils;
+package com.justdo.plug.member.global.utils.kakao;
 
-import com.justdo.plug.member.domain.member.dto.KakaoTokenResponse;
+import com.justdo.plug.member.domain.member.dto.kakao.KakaoTokenResponse;
+import com.justdo.plug.member.global.exception.ApiException;
+import com.justdo.plug.member.global.response.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 
 @Component
@@ -29,9 +33,8 @@ public class KakaoTokenJsonData {
     private String clientId;
 
     public KakaoTokenResponse getToken(String code) {
-
-        String uri = tokenUri + "?grant_type=" + grantType + "&client_id=" +clientId+ "&redirect_uri=" + redirectUri+ "&code=" + code;
-        System.out.println(uri);
+        String uri = tokenUri + "?grant_type=" + grantType + "&client_id="
+                + clientId + "&redirect_uri=" + redirectUri + "&code=" + code;
 
         log.info("uri = {}", uri);
 
@@ -41,6 +44,8 @@ public class KakaoTokenJsonData {
                 .retrieve()
                 .bodyToFlux(KakaoTokenResponse.class);
 
-        return response.blockFirst();
+        return response.onErrorMap(WebClientResponseException.class,
+                        e -> new ApiException(ErrorStatus._KAKAO_TOKEN_ERROR)).blockFirst();
     }
+
 }

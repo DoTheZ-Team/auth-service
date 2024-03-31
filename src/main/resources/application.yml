@@ -27,6 +27,8 @@ spring:
   # H2 Console 설정
   h2:
     console: # H2 DB를 웹에서 관리할 수 있는 기능
+      settings:
+        web-allow-others: true
       enabled: true           # H2 Console 사용 여부
       path: /h2-console       # H2 Console 접속 주소
 

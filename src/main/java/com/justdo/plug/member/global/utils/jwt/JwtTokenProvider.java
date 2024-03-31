@@ -52,17 +52,17 @@ public class JwtTokenProvider {
     }
 
     // 코드 수정 요망
-    public boolean isTokenValid(String token) {
-        try {
-            String keyBase64Encoded = Base64.getEncoder().encodeToString(secretKey.getBytes());
-            SecretKey secretKey = Keys.hmacShaKeyFor(keyBase64Encoded.getBytes());
-
-            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
-            return true;
-        } catch (JwtException e) {
-            // 유효하지 않은 토큰이므로 false 반환
-            return false;
-        }
-    }
+//    public boolean isTokenValid(String token) {
+//        try {
+//            String keyBase64Encoded = Base64.getEncoder().encodeToString(secretKey.getBytes());
+//            SecretKey secretKey = Keys.hmacShaKeyFor(keyBase64Encoded.getBytes());
+//
+//            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+//            return true;
+//        } catch (JwtException e) {
+//            // 유효하지 않은 토큰이므로 false 반환
+//            return false;
+//        }
+//    }
 
 }

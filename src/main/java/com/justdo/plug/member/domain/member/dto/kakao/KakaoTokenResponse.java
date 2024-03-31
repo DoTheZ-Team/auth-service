@@ -1,8 +1,9 @@
-package com.justdo.plug.member.domain.member.dto;
+package com.justdo.plug.member.domain.member.dto.kakao;
 
 import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class KakaoTokenResponse {
     private String access_token;
     private String token_type;

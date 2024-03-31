@@ -1,4 +1,4 @@
-package com.justdo.plug.member.domain.member.dto;
+package com.justdo.plug.member.domain.member.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,7 +8,6 @@ public class JwtTokenResponse {
 
     private final String accessToken;
     private final String refreshToken;
-
     private final Boolean isNew;
 
     @Builder

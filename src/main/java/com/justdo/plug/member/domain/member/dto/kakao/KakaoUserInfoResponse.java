@@ -1,8 +1,9 @@
-package com.justdo.plug.member.domain.member.dto;
+package com.justdo.plug.member.domain.member.dto.kakao;
 
 import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class KakaoUserInfoResponse {
     private Long id;
     private String connectedAt;

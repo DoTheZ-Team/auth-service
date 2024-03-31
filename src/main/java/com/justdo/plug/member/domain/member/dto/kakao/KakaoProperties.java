@@ -1,9 +1,10 @@
-package com.justdo.plug.member.domain.member.dto;
+package com.justdo.plug.member.domain.member.dto.kakao;
 
 
 import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class KakaoProperties {
     private String nickname;
     private String profile_image;

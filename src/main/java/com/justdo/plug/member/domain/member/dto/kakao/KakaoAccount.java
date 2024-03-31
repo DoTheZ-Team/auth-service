@@ -1,8 +1,9 @@
-package com.justdo.plug.member.domain.member.dto;
+package com.justdo.plug.member.domain.member.dto.kakao;
 
 import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class KakaoAccount {
     private boolean profile_nickname_needs_agreement;
     private boolean profile_image_needs_agreement;
