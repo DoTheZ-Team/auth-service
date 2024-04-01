@@ -32,6 +32,8 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
+
+
     private final KakaoUserInfo kakaoUserInfo;
     private final KakaoTokenJsonData kakaoTokenJsonData;
 

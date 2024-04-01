@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Locale;
 
 @Component
 @Slf4j
@@ -24,11 +25,18 @@ public class JwtTokenProvider {
     public static final long ACCESS_TOKEN_EXPIRATION_TIME = 15 * 60 * 1000; // 15분
     public static final long REFRESH_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000; // 7일
 
-    public String generateAccessToken(Long userId) {
-        Date expiryDate = new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME);
-
+    private SecretKey getSecretKey() {
         String keyBase64Encoded = Base64.getEncoder().encodeToString(secretKey.getBytes());
-        SecretKey secretKey = Keys.hmacShaKeyFor(keyBase64Encoded.getBytes());
+        return Keys.hmacShaKeyFor(keyBase64Encoded.getBytes());
+    }
+
+    private Date getExpiryDate(long expirationTime) {
+        return new Date(System.currentTimeMillis() + expirationTime);
+    }
+
+    public String generateAccessToken(Long userId) {
+        Date expiryDate = getExpiryDate(ACCESS_TOKEN_EXPIRATION_TIME);
+        SecretKey secretKey = getSecretKey();
 
         return Jwts.builder()
                 .subject("accessToken")
@@ -39,10 +47,8 @@ public class JwtTokenProvider {
     }
 
     public String generateRefreshToken() {
-        Date expiryDate = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME);
-
-        String keyBase64Encoded = Base64.getEncoder().encodeToString(secretKey.getBytes());
-        SecretKey secretKey = Keys.hmacShaKeyFor(keyBase64Encoded.getBytes());
+        Date expiryDate = getExpiryDate(REFRESH_TOKEN_EXPIRATION_TIME);
+        SecretKey secretKey = getSecretKey();
 
         return Jwts.builder()
                 .subject("refreshToken")
@@ -50,6 +56,7 @@ public class JwtTokenProvider {
                 .signWith(secretKey)
                 .compact();
     }
+
 
     // 코드 수정 요망
 //    public boolean isTokenValid(String token) {

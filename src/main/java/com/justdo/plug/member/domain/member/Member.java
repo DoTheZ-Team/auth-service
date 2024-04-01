@@ -31,7 +31,6 @@ public class Member extends BaseTimeEntity {
     @Column(length = 20)
     private String nickname;
 
-    @Lob
     private String profile_url;
 
     private Boolean state;
