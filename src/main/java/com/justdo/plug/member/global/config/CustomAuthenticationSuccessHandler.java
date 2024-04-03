@@ -1,6 +1,9 @@
 package com.justdo.plug.member.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.justdo.plug.member.domain.member.Member;
+import com.justdo.plug.member.domain.member.dto.kakao.KakaoUserInfo;
+import com.justdo.plug.member.domain.member.repository.MemberRepository;
 import com.justdo.plug.member.global.exception.ApiException;
 import com.justdo.plug.member.global.response.ApiResponse;
 import com.justdo.plug.member.global.response.code.status.ErrorStatus;
@@ -32,10 +35,15 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisUtils redisUtils;
+    private final MemberRepository memberRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+
+        // 로그인 or 회원가입
+        KakaoUserInfo kakaoUserInfo = new KakaoUserInfo(defaultOAuth2User.getAttributes());
+        boolean isNewUser = registerIfNewUser(kakaoUserInfo);
 
         Long userId = (Long) defaultOAuth2User.getAttributes().get("id");
 
@@ -43,13 +51,16 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String refreshToken = jwtTokenProvider.generateRefreshToken();
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        Map<String, String> tokenMap = new HashMap<>();
+        response.setCharacterEncoding("UTF-8");
+
+        Map<String, Object> tokenMap = new HashMap<>();
         tokenMap.put("accessToken", accessToken);
         tokenMap.put("refreshToken", refreshToken);
+        tokenMap.put("isNew", isNewUser);
 
-        storeRefreshTokenInRedis(userId,refreshToken);
+        storeRefreshTokenInRedis(userId, refreshToken);
 
-        ApiResponse<Map<String, String>> apiResponse = ApiResponse.onSuccess(tokenMap);
+        ApiResponse<Map<String, Object>> apiResponse = ApiResponse.onSuccess(tokenMap);
 
         // JSON 응답 생성
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -60,12 +71,26 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         }
 
     }
-
     private void storeRefreshTokenInRedis(Long userId, String refreshToken) {
         try {
             redisUtils.setData(userId.toString(),refreshToken,REFRESH_TOKEN_EXPIRATION_TIME);
         } catch (RedisConnectionException | DataAccessException e) {
             throw new ApiException(ErrorStatus._REDIS_OPERATION_ERROR);
         }
+    }
+
+    private boolean registerIfNewUser(KakaoUserInfo kakaoUserInfo) {
+        if (!memberRepository.existsById(kakaoUserInfo.getId())) {
+            Member newMember = Member.builder()
+                    .id(kakaoUserInfo.getId())
+                    .email(kakaoUserInfo.getEmail())
+                    .nickname(kakaoUserInfo.getNickname())
+                    .profile_url(kakaoUserInfo.getProfileImageUrl())
+                    .build();
+
+            memberRepository.save(newMember);
+            return true; // 새로운 사용자인 경우 true 반환
+        }
+        return false; // 기존 사용자인 경우 false 반환
     }
 }

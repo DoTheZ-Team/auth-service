@@ -1,7 +1,5 @@
 package com.justdo.plug.member.domain.member.service;
 
-import com.justdo.plug.member.domain.member.Member;
-import com.justdo.plug.member.domain.member.dto.kakao.KakaoUserInfo;
 import com.justdo.plug.member.domain.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,24 +33,8 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                 .getUserInfoEndpoint()
                 .getUserNameAttributeName();
 
-        // 로그인 or 회원가입
-        KakaoUserInfo kakaoUserInfo = new KakaoUserInfo(oAuth2User.getAttributes());
-        registerIfNewUser(kakaoUserInfo);
-
         return new DefaultOAuth2User(authorities, oAuth2User.getAttributes(), userNameAttributeName);
     }
 
-    private void registerIfNewUser(KakaoUserInfo kakaoUserInfo){
-        if(!memberRepository.existsById(kakaoUserInfo.getId())){
-            Member newMember = Member.builder()
-                    .id(kakaoUserInfo.getId())
-                    .email(kakaoUserInfo.getEmail())
-                    .nickname(kakaoUserInfo.getNickname())
-                    .profile_url(kakaoUserInfo.getProfileImageUrl())
-                    .build();
-
-            memberRepository.save(newMember);
-        }
-    }
 }
 
