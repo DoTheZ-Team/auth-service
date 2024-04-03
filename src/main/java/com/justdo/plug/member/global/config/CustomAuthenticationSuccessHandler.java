@@ -43,7 +43,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         // 로그인 or 회원가입
         KakaoUserInfo kakaoUserInfo = new KakaoUserInfo(defaultOAuth2User.getAttributes());
-        boolean isNewUser = registerIfNewUser(kakaoUserInfo);
+        registerIfNewUser(kakaoUserInfo);
 
         Long userId = (Long) defaultOAuth2User.getAttributes().get("id");
 
@@ -56,7 +56,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         Map<String, Object> tokenMap = new HashMap<>();
         tokenMap.put("accessToken", accessToken);
         tokenMap.put("refreshToken", refreshToken);
-        tokenMap.put("isNew", isNewUser);
 
         storeRefreshTokenInRedis(userId, refreshToken);
 
@@ -79,7 +78,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         }
     }
 
-    private boolean registerIfNewUser(KakaoUserInfo kakaoUserInfo) {
+    private void registerIfNewUser(KakaoUserInfo kakaoUserInfo) {
         if (!memberRepository.existsById(kakaoUserInfo.getId())) {
             Member newMember = Member.builder()
                     .id(kakaoUserInfo.getId())
@@ -89,8 +88,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                     .build();
 
             memberRepository.save(newMember);
-            return true; // 새로운 사용자인 경우 true 반환
         }
-        return false; // 기존 사용자인 경우 false 반환
     }
 }
