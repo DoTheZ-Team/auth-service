@@ -34,20 +34,14 @@ public class Member extends BaseTimeEntity {
 
     private Boolean state;
 
-    @Column(nullable = false)
-    private Boolean phone_share_state;
-
-    private Boolean match_state;
-
     private LocalDateTime inactive_date;
 
     @Builder
-    public Member(Long id,String email, String profile_url, String nickname, Boolean phone_share_state) {
+    public Member(Long id,String email, String profile_url, String nickname) {
         this.id = id;
         this.nickname = nickname;
         this.email = email;
         this.profile_url = profile_url;
-        this.phone_share_state = phone_share_state;
     }
 
     // 일단 양방향 연관관계 X

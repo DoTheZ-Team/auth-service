@@ -49,7 +49,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .email(kakaoUserInfo.getEmail())
                     .nickname(kakaoUserInfo.getNickname())
                     .profile_url(kakaoUserInfo.getProfileImageUrl())
-                    .phone_share_state(false)
                     .build();
 
             memberRepository.save(newMember);
