@@ -15,8 +15,11 @@ import java.time.LocalDateTime;
 public class Member extends BaseTimeEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
+
+    private Long kakaoId;
 
     @Column(length = 20)
     private String name;
@@ -37,8 +40,8 @@ public class Member extends BaseTimeEntity {
     private LocalDateTime inactive_date;
 
     @Builder
-    public Member(Long id,String email, String profile_url, String nickname) {
-        this.id = id;
+    public Member(Long kakaoId,String email, String profile_url, String nickname) {
+        this.kakaoId = kakaoId;
         this.nickname = nickname;
         this.email = email;
         this.profile_url = profile_url;

@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.justdo.plug.member.global.utils.jwt.JwtTokenProvider.REFRESH_TOKEN_EXPIRATION_TIME;
@@ -43,26 +43,27 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         // 로그인 or 회원가입
         KakaoUserInfo kakaoUserInfo = new KakaoUserInfo(defaultOAuth2User.getAttributes());
-        registerIfNewUser(kakaoUserInfo);
 
-        Long userId = (Long) defaultOAuth2User.getAttributes().get("id");
+        Long userId = registerIfNewUser(kakaoUserInfo);
+
+        System.out.println(userId);
 
         String accessToken = jwtTokenProvider.generateAccessToken(userId);
         String refreshToken = jwtTokenProvider.generateRefreshToken();
 
+        storeRefreshTokenInRedis(userId,refreshToken);
+
+        response.setHeader(HttpHeaders.AUTHORIZATION, accessToken);
+        response.setHeader("Authorization-refresh", refreshToken);
+
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        Map<String, Object> tokenMap = new HashMap<>();
-        tokenMap.put("accessToken", accessToken);
-        tokenMap.put("refreshToken", refreshToken);
+        ;
 
-        storeRefreshTokenInRedis(userId, refreshToken);
-
-        ApiResponse<Map<String, Object>> apiResponse = ApiResponse.onSuccess(tokenMap);
+        ApiResponse<Map<String, Object>> apiResponse = ApiResponse.onSuccess(null);
 
         // JSON 응답 생성
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         String json = new ObjectMapper().writeValueAsString(apiResponse);
 
         try (PrintWriter writer = response.getWriter()) {
@@ -78,16 +79,21 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         }
     }
 
-    private void registerIfNewUser(KakaoUserInfo kakaoUserInfo) {
-        if (!memberRepository.existsById(kakaoUserInfo.getId())) {
+    private Long registerIfNewUser(KakaoUserInfo kakaoUserInfo) {
+        if (!memberRepository.existsByKakaoId(kakaoUserInfo.getId())) {
             Member newMember = Member.builder()
-                    .id(kakaoUserInfo.getId())
+                    .kakaoId(kakaoUserInfo.getId())
                     .email(kakaoUserInfo.getEmail())
                     .nickname(kakaoUserInfo.getNickname())
                     .profile_url(kakaoUserInfo.getProfileImageUrl())
                     .build();
 
-            memberRepository.save(newMember);
+            Member savedMember = memberRepository.save(newMember);
+            return savedMember.getId();
+        }
+        else {
+            Member foundMember = memberRepository.findByKakaoId(kakaoUserInfo.getId());
+            return foundMember.getId();
         }
     }
 }
