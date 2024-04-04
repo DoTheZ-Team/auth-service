@@ -1,6 +1,7 @@
 package com.justdo.plug.member.domain.member;
 
 import com.justdo.plug.member.domain.common.BaseTimeEntity;
+import com.justdo.plug.member.domain.member.dto.request.MemberInfoRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -23,9 +24,6 @@ public class Member extends BaseTimeEntity {
     private Long providerId;
 
     @Column(length = 20)
-    private String name;
-
-    @Column(length = 20)
     private String email;
 
     @Column(length = 10)
@@ -46,6 +44,12 @@ public class Member extends BaseTimeEntity {
         this.nickname = nickname;
         this.email = email;
         this.profile_url = profile_url;
+    }
+
+    public void updateMember(MemberInfoRequest request){
+        this.email = request.getEmail();
+        this.profile_url = request.getProfile_url();
+        this.nickname = request.getNickname();
     }
 
     // 일단 양방향 연관관계 X
