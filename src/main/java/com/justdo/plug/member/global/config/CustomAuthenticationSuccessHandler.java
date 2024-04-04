@@ -19,6 +19,8 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 import static com.justdo.plug.member.global.utils.jwt.JwtTokenProvider.REFRESH_TOKEN_EXPIRATION_TIME;
 
 @Component
@@ -69,8 +71,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             return savedMember.getId();
         }
         else {
-            Member foundMember = memberRepository.findByProviderId(kakaoUserInfo.getId());
-            return foundMember.getId();
+            Optional<Member> foundMember = memberRepository.findByProviderId(kakaoUserInfo.getId());
+            return foundMember.orElseThrow(() -> new ApiException(ErrorStatus._MEMBER_NOT_FOUND_ERROR)).getId();
         }
     }
 }
