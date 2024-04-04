@@ -19,7 +19,8 @@ public class Member extends BaseTimeEntity {
     @Column(name = "member_id")
     private Long id;
 
-    private Long kakaoId;
+    @Column(name = "provider_id")
+    private Long providerId;
 
     @Column(length = 20)
     private String name;
@@ -28,7 +29,7 @@ public class Member extends BaseTimeEntity {
     private String email;
 
     @Column(length = 10)
-    private String socialType;
+    private String provider;
 
     @Column(length = 20)
     private String nickname;
@@ -40,8 +41,8 @@ public class Member extends BaseTimeEntity {
     private LocalDateTime inactive_date;
 
     @Builder
-    public Member(Long kakaoId,String email, String profile_url, String nickname) {
-        this.kakaoId = kakaoId;
+    public Member(Long providerId,String email, String profile_url, String nickname) {
+        this.providerId = providerId;
         this.nickname = nickname;
         this.email = email;
         this.profile_url = profile_url;
