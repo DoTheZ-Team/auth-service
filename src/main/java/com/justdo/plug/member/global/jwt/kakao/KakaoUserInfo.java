@@ -1,4 +1,4 @@
-package com.justdo.plug.member.domain.member.dto.kakao;
+package com.justdo.plug.member.global.jwt.kakao;
 
 import lombok.Getter;
 

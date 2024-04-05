@@ -1,11 +1,13 @@
-package com.justdo.plug.member.global.utils.jwt;
+package com.justdo.plug.member.global.jwt;
 
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
@@ -50,6 +52,18 @@ public class JwtTokenProvider {
                 .expiration(expiryDate)
                 .signWith(secretKey)
                 .compact();
+    }
+
+    // New method to extract userId claim
+    public Long getUserIdFromToken(String token) {
+        try {
+            SecretKey secretKey = getSecretKey();
+
+            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userId",Long.class);
+
+        } catch (JwtException e) {
+            return null;
+        }
     }
 
 
