@@ -3,6 +3,7 @@ package com.justdo.plug.member.domain.member.service;
 import com.justdo.plug.member.domain.member.Member;
 import com.justdo.plug.member.domain.member.dto.request.MemberInfoRequest;
 import com.justdo.plug.member.domain.member.dto.response.MemberInfoResponse;
+import com.justdo.plug.member.domain.member.mapper.MemberDtoMapper;
 import com.justdo.plug.member.domain.member.repository.MemberRepository;
 import com.justdo.plug.member.global.exception.ApiException;
 import com.justdo.plug.member.global.response.code.status.ErrorStatus;
@@ -10,8 +11,6 @@ import com.justdo.plug.member.global.utils.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,14 +24,9 @@ public class MemberService {
 
         Long userId = extractUserIdFromToken(accessToken);
 
-        Optional<Member> memberOptional = memberRepository.findById(userId);
-        Member member = memberOptional.orElseThrow(() -> new ApiException(ErrorStatus._MEMBER_NOT_FOUND_ERROR));
+        Member foundmMember = findMember(userId);
 
-        return MemberInfoResponse.builder()
-                .nickname(member.getNickname())
-                .profile_url(member.getProfile_url())
-                .email(member.getEmail())
-                .build();
+        return MemberDtoMapper.mapMemberToMemberInfoResponse(foundmMember);
     }
 
     @Transactional
@@ -45,16 +39,12 @@ public class MemberService {
 
         foundmMember.updateMember(memberInfoRequest);
 
-        return MemberInfoResponse.builder()
-                .email(foundmMember.getEmail())
-                .nickname(foundmMember.getNickname())
-                .profile_url(foundmMember.getProfile_url())
-                .build();
+        return MemberDtoMapper.mapMemberToMemberInfoResponse(foundmMember);
     }
 
     private Member findMember(Long userId){
-        Optional<Member> memberOptional = memberRepository.findById(userId);
-        return memberOptional.orElseThrow(() -> new ApiException(ErrorStatus._MEMBER_NOT_FOUND_ERROR));
+        return memberRepository.findById(userId).orElseThrow(
+                () -> new ApiException(ErrorStatus._MEMBER_NOT_FOUND_ERROR));
     }
 
     private void checkToken(String accessToken){

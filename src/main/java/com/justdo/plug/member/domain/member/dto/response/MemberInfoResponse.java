@@ -18,4 +18,5 @@ public class MemberInfoResponse {
         this.nickname = nickname;
         this.profile_url = profile_url;
     }
+
 }
