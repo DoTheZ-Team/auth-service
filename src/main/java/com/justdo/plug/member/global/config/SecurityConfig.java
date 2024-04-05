@@ -1,6 +1,7 @@
 package com.justdo.plug.member.global.config;
 
-import com.justdo.plug.member.domain.member.service.OAuth2UserService;
+import com.justdo.plug.member.global.jwt.kakao.CustomAuthenticationSuccessHandler;
+import com.justdo.plug.member.global.jwt.kakao.OAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

@@ -1,12 +1,11 @@
-package com.justdo.plug.member.global.config;
+package com.justdo.plug.member.global.jwt.kakao;
 
 import com.justdo.plug.member.domain.member.Member;
-import com.justdo.plug.member.domain.member.dto.kakao.KakaoUserInfo;
 import com.justdo.plug.member.domain.member.repository.MemberRepository;
 import com.justdo.plug.member.global.exception.ApiException;
+import com.justdo.plug.member.global.jwt.JwtTokenProvider;
 import com.justdo.plug.member.global.response.code.status.ErrorStatus;
-import com.justdo.plug.member.global.utils.jwt.JwtTokenProvider;
-import com.justdo.plug.member.global.utils.jwt.RedisUtils;
+import com.justdo.plug.member.global.utils.redis.RedisUtils;
 import io.lettuce.core.RedisConnectionException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-import static com.justdo.plug.member.global.utils.jwt.JwtTokenProvider.REFRESH_TOKEN_EXPIRATION_TIME;
+import static com.justdo.plug.member.global.jwt.JwtTokenProvider.REFRESH_TOKEN_EXPIRATION_TIME;
 
 @Component
 @RequiredArgsConstructor

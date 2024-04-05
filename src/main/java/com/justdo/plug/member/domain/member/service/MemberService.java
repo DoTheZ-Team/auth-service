@@ -3,11 +3,10 @@ package com.justdo.plug.member.domain.member.service;
 import com.justdo.plug.member.domain.member.Member;
 import com.justdo.plug.member.domain.member.dto.request.MemberInfoRequest;
 import com.justdo.plug.member.domain.member.dto.response.MemberInfoResponse;
-import com.justdo.plug.member.domain.member.mapper.MemberDtoMapper;
 import com.justdo.plug.member.domain.member.repository.MemberRepository;
 import com.justdo.plug.member.global.exception.ApiException;
 import com.justdo.plug.member.global.response.code.status.ErrorStatus;
-import com.justdo.plug.member.global.utils.jwt.JwtTokenProvider;
+import com.justdo.plug.member.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,7 @@ public class MemberService {
 
         Member foundmMember = findMember(userId);
 
-        return MemberDtoMapper.mapMemberToMemberInfoResponse(foundmMember);
+        return MemberInfoResponse.mapMemberToMemberInfoResponse(foundmMember);
     }
 
     @Transactional
@@ -39,7 +38,7 @@ public class MemberService {
 
         foundmMember.updateMember(memberInfoRequest);
 
-        return MemberDtoMapper.mapMemberToMemberInfoResponse(foundmMember);
+        return MemberInfoResponse.mapMemberToMemberInfoResponse(foundmMember);
     }
 
     private Member findMember(Long userId){

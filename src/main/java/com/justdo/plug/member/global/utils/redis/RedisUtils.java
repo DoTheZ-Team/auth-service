@@ -1,4 +1,4 @@
-package com.justdo.plug.member.global.utils.jwt;
+package com.justdo.plug.member.global.utils.redis;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;

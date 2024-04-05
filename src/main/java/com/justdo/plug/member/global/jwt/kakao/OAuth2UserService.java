@@ -1,4 +1,4 @@
-package com.justdo.plug.member.domain.member.service;
+package com.justdo.plug.member.global.jwt.kakao;
 
 import jakarta.transaction.Transactional;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

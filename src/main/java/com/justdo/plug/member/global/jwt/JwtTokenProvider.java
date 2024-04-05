@@ -1,4 +1,4 @@
-package com.justdo.plug.member.global.utils.jwt;
+package com.justdo.plug.member.global.jwt;
 
 
 import io.jsonwebtoken.JwtException;
