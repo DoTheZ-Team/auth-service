@@ -38,12 +38,10 @@ public class MemberController {
     }
 
     @PostMapping("/logout")
-    public ApiResponse<Object> logout(HttpServletRequest request){
+    public void logout(HttpServletRequest request){
         String accessToken = request.getHeader("Authorization");
 
         memberService.logout(accessToken);
-
-        return ApiResponse.onSuccess(null);
     }
 
 
