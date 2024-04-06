@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/members/**")
+@RequestMapping("/members")
 @Slf4j
 
 public class MemberController {
@@ -23,7 +23,7 @@ public class MemberController {
 
         String accessToken = request.getHeader("Authorization");
 
-        MemberInfoResponse memberInfo = memberService.getInfo(accessToken);
+        MemberInfoResponse memberInfo = memberService.getMemberInfo(accessToken);
 
         return ApiResponse.onSuccess(memberInfo);
     }
@@ -32,9 +32,18 @@ public class MemberController {
     public ApiResponse<MemberInfoResponse> updateMyInfo(HttpServletRequest request, @RequestBody MemberInfoRequest memberInfoRequest){
         String accessToken = request.getHeader("Authorization");
 
-        MemberInfoResponse memberInfo = memberService.updateInfo(accessToken,memberInfoRequest);
+        MemberInfoResponse memberInfo = memberService.updateMemberInfo(accessToken,memberInfoRequest);
 
         return ApiResponse.onSuccess(memberInfo);
     }
+
+    @PostMapping("/logout")
+    public void logout(HttpServletRequest request){
+        String accessToken = request.getHeader("Authorization");
+
+        memberService.logout(accessToken);
+    }
+
+
 
 }
