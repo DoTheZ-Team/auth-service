@@ -5,9 +5,12 @@ import com.justdo.plug.member.domain.member.dto.request.MemberInfoRequest;
 import com.justdo.plug.member.domain.member.dto.response.MemberInfoResponse;
 import com.justdo.plug.member.domain.member.repository.MemberRepository;
 import com.justdo.plug.member.global.exception.ApiException;
-import com.justdo.plug.member.global.response.code.status.ErrorStatus;
 import com.justdo.plug.member.global.jwt.JwtTokenProvider;
+import com.justdo.plug.member.global.response.code.status.ErrorStatus;
+import com.justdo.plug.member.global.utils.redis.RedisUtils;
+import io.lettuce.core.RedisConnectionException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisUtils redisUtils;
 
-    public MemberInfoResponse getInfo(String accessToken){
+    // 멤버 정보 조회
+    public MemberInfoResponse getMemberInfo(String accessToken){
         checkToken(accessToken);
 
         Long userId = extractUserIdFromToken(accessToken);
@@ -28,17 +33,37 @@ public class MemberService {
         return MemberInfoResponse.mapMemberToMemberInfoResponse(foundmMember);
     }
 
+    // 멤버 정보 수정
     @Transactional
-    public MemberInfoResponse updateInfo(String accessToken, MemberInfoRequest memberInfoRequest){
+    public MemberInfoResponse updateMemberInfo(String accessToken, MemberInfoRequest memberInfoRequest){
         checkToken(accessToken);
 
         Long userId = extractUserIdFromToken(accessToken);
 
-        Member foundmMember = findMember(userId);
+        Member foundMember = findMember(userId);
 
-        foundmMember.updateMember(memberInfoRequest);
+        foundMember.updateMember(memberInfoRequest);
 
-        return MemberInfoResponse.mapMemberToMemberInfoResponse(foundmMember);
+        return MemberInfoResponse.mapMemberToMemberInfoResponse(foundMember);
+    }
+
+    // 로그아웃
+    @Transactional
+    public void logout(String accessToken){
+        deleteRefreshToken(accessToken);
+    }
+
+    private void deleteRefreshToken(String accessToken){
+        checkToken(accessToken);
+
+        Long userId = extractUserIdFromToken(accessToken);
+
+        try {
+            redisUtils.deleteData(userId.toString());
+        } catch (RedisConnectionException | DataAccessException e) {
+            throw new ApiException(ErrorStatus._REDIS_OPERATION_ERROR);
+        }
+
     }
 
     private Member findMember(Long userId){
@@ -61,7 +86,7 @@ public class MemberService {
             throw new ApiException(ErrorStatus._UNAUTHORIZED);
         }
 
-        return jwtTokenProvider.getUserIdFromToken(jwt);
+        return userId;
     }
 
 }
