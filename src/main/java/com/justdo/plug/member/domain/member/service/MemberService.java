@@ -18,12 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MemberService {
+
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisUtils redisUtils;
 
+
     // 멤버 정보 조회
-    public MemberInfoResponse getMemberInfo(String accessToken){
+    public MemberInfoResponse getMemberInfo(String accessToken) {
         checkToken(accessToken);
 
         Long userId = extractUserIdFromToken(accessToken);
@@ -35,7 +37,8 @@ public class MemberService {
 
     // 멤버 정보 수정
     @Transactional
-    public MemberInfoResponse updateMemberInfo(String accessToken, MemberInfoRequest memberInfoRequest){
+    public MemberInfoResponse updateMemberInfo(String accessToken,
+        MemberInfoRequest memberInfoRequest) {
         checkToken(accessToken);
 
         Long userId = extractUserIdFromToken(accessToken);
@@ -49,7 +52,7 @@ public class MemberService {
 
     // 로그아웃
     @Transactional
-    public void logout(String accessToken){
+    public void logout(String accessToken) {
         deleteRefreshToken(accessToken);
     }
 
@@ -57,9 +60,12 @@ public class MemberService {
     @Transactional
     public String reissueAccessToken(String accessToken, String refreshToken) {
         checkToken(accessToken);
+
         validateRefreshToken(refreshToken);
         Long userId = extractUserIdFromToken(accessToken);
+
         validateStoredRefreshToken(userId.toString(), refreshToken);
+
         return jwtTokenProvider.generateAccessToken(userId);
     }
 
@@ -77,7 +83,7 @@ public class MemberService {
     }
 
 
-    private void deleteRefreshToken(String accessToken){
+    private void deleteRefreshToken(String accessToken) {
         checkToken(accessToken);
 
         Long userId = extractUserIdFromToken(accessToken);
@@ -90,12 +96,12 @@ public class MemberService {
 
     }
 
-    private Member findMember(Long userId){
+    private Member findMember(Long userId) {
         return memberRepository.findById(userId).orElseThrow(
-                () -> new ApiException(ErrorStatus._MEMBER_NOT_FOUND_ERROR));
+            () -> new ApiException(ErrorStatus._MEMBER_NOT_FOUND_ERROR));
     }
 
-    private void checkToken(String accessToken){
+    private void checkToken(String accessToken) {
         if (accessToken == null || !accessToken.startsWith("Bearer ")) {
             throw new ApiException(ErrorStatus._UNAUTHORIZED);
         }
@@ -106,7 +112,7 @@ public class MemberService {
 
         Long userId = jwtTokenProvider.getUserIdFromToken(jwt);
 
-        if (userId == null){
+        if (userId == null) {
             throw new ApiException(ErrorStatus._UNAUTHORIZED);
         }
 
