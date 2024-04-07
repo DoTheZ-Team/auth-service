@@ -53,6 +53,30 @@ public class MemberService {
         deleteRefreshToken(accessToken);
     }
 
+    // 액세스 토큰 재발급
+    @Transactional
+    public String reissueAccessToken(String accessToken, String refreshToken) {
+        checkToken(accessToken);
+        validateRefreshToken(refreshToken);
+        Long userId = extractUserIdFromToken(accessToken);
+        validateStoredRefreshToken(userId.toString(), refreshToken);
+        return jwtTokenProvider.generateAccessToken(userId);
+    }
+
+    private void validateRefreshToken(String refreshToken) {
+        if (!jwtTokenProvider.isTokenValid(refreshToken)) {
+            throw new ApiException(ErrorStatus._INVALID_REFRESH_TOKEN);
+        }
+    }
+
+    private void validateStoredRefreshToken(String userId, String refreshToken) {
+        String storedRefreshToken = redisUtils.getData(userId);
+        if (!refreshToken.equals(storedRefreshToken)) {
+            throw new ApiException(ErrorStatus._INVALID_REFRESH_TOKEN);
+        }
+    }
+
+
     private void deleteRefreshToken(String accessToken){
         checkToken(accessToken);
 

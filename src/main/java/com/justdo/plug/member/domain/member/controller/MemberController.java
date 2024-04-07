@@ -5,6 +5,7 @@ import com.justdo.plug.member.domain.member.dto.response.MemberInfoResponse;
 import com.justdo.plug.member.domain.member.service.MemberService;
 import com.justdo.plug.member.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,15 @@ public class MemberController {
         memberService.logout(accessToken);
     }
 
+    @PostMapping("/reissue")
+    public void refreshAccessToken(HttpServletRequest request, HttpServletResponse response){
+        String accessToken = request.getHeader("Authorization");
+        String refreshToken = request.getHeader("Authorization-refresh");
+
+        String newAccessToken = memberService.reissueAccessToken(accessToken, refreshToken);
+
+        response.setHeader("Authorization", newAccessToken);
+    }
 
 
 }

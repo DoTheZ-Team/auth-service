@@ -24,9 +24,10 @@ public enum ErrorStatus implements BaseErrorCode {
     // 레디스 응답
     _REDIS_OPERATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"REDIS_001","레디스 데이터 접근 중에 오류가 발생했습니다."),
     // 멤버 관련 응답
-    _MEMBER_NOT_FOUND_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MEMBER_001", "해당 사용자를 찾을 수 없습니다.");
-    // 추가 예정
-    // ^_^
+    _MEMBER_NOT_FOUND_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MEMBER_001", "해당 사용자를 찾을 수 없습니다."),
+
+    // jwt
+    _INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "JWT_001", "유효하지 않은 리프레시 토큰입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
