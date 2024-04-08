@@ -54,7 +54,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // New method to extract userId claim
+    // userId 추출
     public Long getUserIdFromToken(String token) {
         try {
             SecretKey secretKey = getSecretKey();
@@ -66,19 +66,17 @@ public class JwtTokenProvider {
         }
     }
 
+    // 토큰 유효성 검사
+    public boolean isTokenValid(String token) {
+        try {
+            SecretKey secretKey = getSecretKey();
 
-    // 코드 수정 요망
-//    public boolean isTokenValid(String token) {
-//        try {
-//            String keyBase64Encoded = Base64.getEncoder().encodeToString(secretKey.getBytes());
-//            SecretKey secretKey = Keys.hmacShaKeyFor(keyBase64Encoded.getBytes());
-//
-//            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
-//            return true;
-//        } catch (JwtException e) {
-//            // 유효하지 않은 토큰이므로 false 반환
-//            return false;
-//        }
-//    }
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+            return true;
+        } catch (JwtException e) {
+            // 유효하지 않은 토큰이므로 false 반환
+            return false;
+        }
+    }
 
 }
