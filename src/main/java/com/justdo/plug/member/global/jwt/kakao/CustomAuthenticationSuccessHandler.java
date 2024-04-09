@@ -1,5 +1,6 @@
 package com.justdo.plug.member.global.jwt.kakao;
 
+import com.justdo.plug.blog.BlogClient;
 import com.justdo.plug.member.domain.member.Member;
 import com.justdo.plug.member.domain.member.repository.MemberRepository;
 import com.justdo.plug.member.global.exception.ApiException;
@@ -30,6 +31,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisUtils redisUtils;
     private final MemberRepository memberRepository;
+    private final BlogClient blogClient;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
@@ -67,6 +69,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                     .build();
 
             Member savedMember = memberRepository.save(newMember);
+
+            blogClient.createBlog(savedMember.getId());
+
             return savedMember.getId();
         }
         else {
