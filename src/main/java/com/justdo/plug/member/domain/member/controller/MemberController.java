@@ -62,5 +62,9 @@ public class MemberController {
         response.setHeader("Authorization", newAccessToken);
     }
 
+    @PostMapping("/blogs")
+    public List<String> getMemberNicknames(@RequestBody List<Long> memberIdList) {
 
+        return memberService.getMemberNicknames(memberIdList);
+    }
 }

@@ -9,6 +9,7 @@ import com.justdo.plug.member.global.jwt.JwtTokenProvider;
 import com.justdo.plug.member.global.response.code.status.ErrorStatus;
 import com.justdo.plug.member.global.utils.redis.RedisUtils;
 import io.lettuce.core.RedisConnectionException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -119,4 +120,10 @@ public class MemberService {
         return userId;
     }
 
+    public List<String> getMemberNicknames(List<Long> memberIdList) {
+
+        return memberRepository.findAllMemberIdList(memberIdList).stream()
+            .map(Member::getNickname)
+            .toList();
+    }
 }
