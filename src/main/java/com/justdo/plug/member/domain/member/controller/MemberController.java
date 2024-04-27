@@ -6,6 +6,7 @@ import com.justdo.plug.member.domain.member.service.MemberService;
 import com.justdo.plug.member.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,13 +26,11 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping
-    public ApiResponse<MemberInfoResponse> getMyInfo(HttpServletRequest request) {
+    public MemberInfoResponse getMyInfo(HttpServletRequest request) {
 
         String accessToken = request.getHeader("Authorization");
 
-        MemberInfoResponse memberInfo = memberService.getMemberInfo(accessToken);
-
-        return ApiResponse.onSuccess(memberInfo);
+        return memberService.getMemberInfo(accessToken);
     }
 
     @PutMapping
