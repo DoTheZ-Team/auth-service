@@ -23,7 +23,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "provider_id")
     private Long providerId;
 
-    @Column(length = 20)
+    @Column(length = 100)
     private String email;
 
     @Column(length = 10)
