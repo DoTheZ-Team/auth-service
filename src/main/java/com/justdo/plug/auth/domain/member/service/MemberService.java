@@ -8,9 +8,7 @@ import com.justdo.plug.auth.global.exception.ApiException;
 import com.justdo.plug.auth.global.jwt.JwtTokenProvider;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
 import com.justdo.plug.auth.global.utils.redis.RedisUtils;
-import io.lettuce.core.RedisConnectionException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +26,9 @@ public class MemberService {
 
     // 멤버 정보 조회
     public MemberInfoResponse getMemberInfo(String accessToken) {
-        checkToken(accessToken);
+        jwtTokenProvider.checkToken(accessToken);
 
-        Long userId = extractUserIdFromToken(accessToken);
+        Long userId = jwtTokenProvider.extractUserIdFromToken(accessToken);
 
         Member foundmMember = findMember(userId);
 
@@ -41,9 +39,9 @@ public class MemberService {
     @Transactional
     public MemberInfoResponse updateMemberInfo(String accessToken,
         MemberInfoRequest memberInfoRequest) {
-        checkToken(accessToken);
+        jwtTokenProvider.checkToken(accessToken);
 
-        Long userId = extractUserIdFromToken(accessToken);
+        Long userId = jwtTokenProvider.extractUserIdFromToken(accessToken);
 
         Member foundMember = findMember(userId);
 
@@ -55,22 +53,23 @@ public class MemberService {
     // 로그아웃
     @Transactional
     public void logout(String accessToken) {
-        deleteRefreshToken(accessToken);
+        jwtTokenProvider.deleteRefreshToken(accessToken);
     }
 
     // 액세스 토큰 재발급
     @Transactional
     public String reissueAccessToken(String accessToken, String refreshToken) {
-        checkToken(accessToken);
+        jwtTokenProvider.checkToken(accessToken);
 
-        validateRefreshToken(refreshToken);
-        Long userId = extractUserIdFromToken(accessToken);
+        jwtTokenProvider.validateRefreshToken(refreshToken);
+        Long userId = jwtTokenProvider.extractUserIdFromToken(accessToken);
 
-        validateStoredRefreshToken(userId.toString(), refreshToken);
+        jwtTokenProvider.validateStoredRefreshToken(userId.toString(), refreshToken);
 
         return jwtTokenProvider.generateAccessToken(userId);
     }
 
+    // 멤버 리스트에서 멤버 닉네임 리스트 추출
     public List<String> getMemberNicknames(List<Long> memberIdList) {
 
         return memberRepository.findAllMemberIdList(memberIdList).stream()
@@ -78,53 +77,11 @@ public class MemberService {
                 .toList();
     }
 
-    private void validateRefreshToken(String refreshToken) {
-        if (!jwtTokenProvider.isTokenValid(refreshToken)) {
-            throw new ApiException(ErrorStatus._INVALID_REFRESH_TOKEN);
-        }
-    }
 
-    private void validateStoredRefreshToken(String userId, String refreshToken) {
-        String storedRefreshToken = redisUtils.getData(userId);
-        if (!refreshToken.equals(storedRefreshToken)) {
-            throw new ApiException(ErrorStatus._INVALID_REFRESH_TOKEN);
-        }
-    }
-
-
-    private void deleteRefreshToken(String accessToken) {
-        checkToken(accessToken);
-
-        Long userId = extractUserIdFromToken(accessToken);
-
-        try {
-            redisUtils.deleteData(userId.toString());
-        } catch (RedisConnectionException | DataAccessException e) {
-            throw new ApiException(ErrorStatus._REDIS_OPERATION_ERROR);
-        }
-
-    }
-
+    // 특정 멤버 검색
     private Member findMember(Long userId) {
         return memberRepository.findById(userId).orElseThrow(
             () -> new ApiException(ErrorStatus._MEMBER_NOT_FOUND_ERROR));
     }
 
-    private void checkToken(String accessToken) {
-        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
-            throw new ApiException(ErrorStatus._UNAUTHORIZED);
-        }
-    }
-
-    private Long extractUserIdFromToken(String jwtToken) {
-        String jwt = jwtToken.substring(7);
-
-        Long userId = jwtTokenProvider.getUserIdFromToken(jwt);
-
-        if (userId == null) {
-            throw new ApiException(ErrorStatus._UNAUTHORIZED);
-        }
-
-        return userId;
-    }
 }
