@@ -31,6 +31,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
+	// config & eureka
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
@@ -47,14 +51,14 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	// h2
-	runtimeOnly 'com.h2database:h2'
-
 	// openfeign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// swagger
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
 }
 
 
