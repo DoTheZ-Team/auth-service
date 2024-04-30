@@ -52,5 +52,4 @@ public class Member extends BaseTimeEntity {
         this.nickname = request.getNickname();
     }
 
-    // 일단 양방향 연관관계 X
 }

@@ -69,7 +69,7 @@ public class MemberService {
         return jwtTokenProvider.generateAccessToken(userId);
     }
 
-    // 멤버 리스트에서 멤버 닉네임 리스트 추출
+    // 유저 리스트에서 유저 닉네임 리스트 조회
     public List<String> getMemberNicknames(List<Long> memberIdList) {
 
         return memberRepository.findAllMemberIdList(memberIdList).stream()
