@@ -8,17 +8,18 @@ import com.justdo.plug.auth.global.jwt.JwtTokenProvider;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
 import com.justdo.plug.auth.global.utils.redis.RedisUtils;
 import io.lettuce.core.RedisConnectionException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static com.justdo.plug.auth.global.jwt.JwtTokenProvider.REFRESH_TOKEN_EXPIRATION_TIME;
@@ -34,7 +35,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     private final BlogClient blogClient;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
 
         // 로그인 or 회원가입
@@ -47,8 +48,17 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         storeRefreshTokenInRedis(userId,refreshToken);
 
-        response.setHeader(HttpHeaders.AUTHORIZATION, accessToken);
-        response.setHeader("Authorization-refresh", refreshToken);
+        Cookie accessCookie = new Cookie("accessToken",accessToken);
+        Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
+
+        accessCookie.setPath("/");
+        refreshCookie.setPath("/");
+
+        response.addCookie(accessCookie);
+        response.addCookie(refreshCookie);
+
+        // 로그인/회원가입 후 front url
+        response.sendRedirect("http://localhost:3000/home");
 
     }
     private void storeRefreshTokenInRedis(Long userId, String refreshToken) {
