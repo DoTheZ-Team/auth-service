@@ -25,9 +25,9 @@ public class AuthController {
 
     @GetMapping
     @Operation(summary = "로그인 한 유저 정보 조회", description = "현재 로그인한 유저의 정보를 조회한다.")
-    public ApiResponse<MemberInfoResponse> getMyInfo(HttpServletRequest request) {
+    public MemberInfoResponse getMyInfo(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");
-        return ApiResponse.onSuccess(memberService.getMemberInfo(accessToken));
+        return memberService.getMemberInfo(accessToken);
     }
 
     @PutMapping
@@ -59,7 +59,7 @@ public class AuthController {
 
     @PostMapping("/blogs")
     @Operation(summary = "유저 리스트에서 유저 닉네임 리스트 조회", description = "요청에 담긴 유저 리스트로 유저 닉네임 리스트를 조회한다.")
-    public ApiResponse<List<String>> getMemberNicknames(@RequestBody List<Long> memberIdList) {
-        return ApiResponse.onSuccess(memberService.getMemberNicknames(memberIdList));
+    public List<String> getMemberNicknames(@RequestBody List<Long> memberIdList) {
+        return memberService.getMemberNicknames(memberIdList);
     }
 }
