@@ -1,4 +1,4 @@
-package com.justdo.plug.member;
+package com.justdo.plug.auth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
