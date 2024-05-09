@@ -2,6 +2,21 @@ spring:
   application:
     name: auth
   profiles:
-    active: dev
+    active: prod
   config:
-    import: optional:configserver:http://localhost:8888
+    import: optional:configserver:http://glue-config.glue-service.svc.cluster.local:8888
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://34.23.9.30:3306/glue
+    username: root
+    password: jeong2160
+  data:
+    redis:
+      host: glue-auth.glue-service.svc.cluster.local
+      port: 6379
+application:
+  config:
+    blogs-url: http://glue-blog.glue-service.svc.cluster.local:8081/blogs
+
+jwt:
+  secret: ZOs2kmQNdL/+yB4bI63AuIujKFOWzZJaHKq+kWCcZBE=
