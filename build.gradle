@@ -31,8 +31,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
-	// config & eureka
-	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	// config
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 
 	// redis

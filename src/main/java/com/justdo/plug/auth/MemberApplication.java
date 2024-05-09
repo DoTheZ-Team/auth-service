@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @SpringBootApplication
 @EnableFeignClients(basePackages = {"com.justdo.plug"})
-@EnableDiscoveryClient
 public class MemberApplication {
 
 	public static void main(String[] args) {
