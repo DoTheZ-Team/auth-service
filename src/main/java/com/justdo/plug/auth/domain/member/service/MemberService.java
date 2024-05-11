@@ -7,12 +7,10 @@ import com.justdo.plug.auth.domain.member.repository.MemberRepository;
 import com.justdo.plug.auth.global.exception.ApiException;
 import com.justdo.plug.auth.global.jwt.JwtTokenProvider;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
-import com.justdo.plug.auth.global.utils.redis.RedisUtils;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +19,6 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisUtils redisUtils;
 
 
     // 멤버 정보 조회
@@ -73,15 +70,18 @@ public class MemberService {
     public List<String> getMemberNicknames(List<Long> memberIdList) {
 
         return memberRepository.findAllMemberIdList(memberIdList).stream()
-                .map(Member::getNickname)
-                .toList();
+            .map(Member::getNickname)
+            .toList();
     }
-
 
     // 특정 멤버 검색
     private Member findMember(Long userId) {
         return memberRepository.findById(userId).orElseThrow(
             () -> new ApiException(ErrorStatus._MEMBER_NOT_FOUND_ERROR));
+    }
+
+    public String findMemberName(Long memberId) {
+        return findMember(memberId).getNickname();
     }
 
 }

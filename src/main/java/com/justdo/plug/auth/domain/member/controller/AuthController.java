@@ -30,6 +30,13 @@ public class AuthController {
         return memberService.getMemberInfo(accessToken);
     }
 
+    @Operation(summary = "블로그 주인의 닉네임을 조회합니다. ", description = "Open feign 요청입니다.")
+    @GetMapping("/blogs/{memberId}")
+    public String getMemberName(@PathVariable Long memberId) {
+
+        return memberService.findMemberName(memberId);
+    }
+
     @PutMapping
     @Operation(summary = "로그인 한 유저 정보 수정", description = "현재 로그인한 유저의 정보를 수정한다.")
     public ApiResponse<MemberInfoResponse> updateMyInfo(HttpServletRequest request
