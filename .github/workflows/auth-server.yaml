@@ -71,7 +71,7 @@ jobs:
 
       - name: Update image in deployment file
         run: |
-          yq e '.spec.template.spec.containers[0].image = "${{ secrets.GLUE_PROJECT }}/glue-repository/glue-auth:${{ github.sha }}"' ./k8s-template/auth-deployment.yaml -i
+          yq e '.spec.template.spec.containers[1].image = "${{ secrets.GLUE_PROJECT }}/glue-repository/glue-auth:${{ github.sha }}"' ./k8s-template/auth-deployment.yaml -i
 
       - name: Commit and Push changes
         run: |
