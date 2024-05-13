@@ -1,1 +1,1 @@
-glue auth server입니다
+GLUE auth server입니다
