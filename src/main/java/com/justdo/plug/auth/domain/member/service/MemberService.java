@@ -6,11 +6,24 @@ import com.justdo.plug.auth.domain.member.dto.response.MemberInfoResponse;
 import com.justdo.plug.auth.domain.member.repository.MemberRepository;
 import com.justdo.plug.auth.global.exception.ApiException;
 import com.justdo.plug.auth.global.jwt.JwtTokenProvider;
+import com.justdo.plug.auth.global.jwt.kakao.preVersion.KakaoTokenJsonData;
+import com.justdo.plug.auth.global.jwt.kakao.preVersion.KakaoUserInfoJsonData;
+import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.JwtTokenResponse;
+import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.KakaoAccount;
+import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.KakaoProfile;
+import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoTokenResponse;
+import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoUserInfoResponse;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
-import java.util.List;
+import com.justdo.plug.auth.global.utils.redis.RedisUtils;
+import io.lettuce.core.RedisConnectionException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static com.justdo.plug.auth.global.jwt.JwtTokenProvider.REFRESH_TOKEN_EXPIRATION_TIME;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +32,47 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisUtils redisUtils;
+    private final KakaoTokenJsonData kakaoTokenJsonData;
+    private final KakaoUserInfoJsonData kakaoUserInfoJsonData;
+
+
+    // 카카오 로그인 처리
+    @Transactional
+    public JwtTokenResponse processKakaoLogin(String code) {
+        KakaoTokenResponse tokenResponse = kakaoTokenJsonData.getToken(code);
+        KakaoUserInfoResponse userInfo = kakaoUserInfoJsonData.getUserInfo(tokenResponse.getAccess_token());
+        registerMemberIfNew(userInfo);
+
+        String accessToken = jwtTokenProvider.generateAccessToken(userInfo.getId());
+        String refreshToken = jwtTokenProvider.generateRefreshToken();
+
+        try {
+            redisUtils.setData(userInfo.getId().toString(),refreshToken,REFRESH_TOKEN_EXPIRATION_TIME);
+        } catch (RedisConnectionException | DataAccessException e) {
+            throw new ApiException(ErrorStatus._REDIS_OPERATION_ERROR);
+        }
+
+        return JwtTokenResponse.createJwtTokenResponse(accessToken, refreshToken);
+    }
+
+    private void registerMemberIfNew(KakaoUserInfoResponse userInfo) {
+        if (!memberRepository.existsByProviderId(userInfo.getId())) {
+            Member newMember = createNewMember(userInfo);
+            memberRepository.save(newMember);
+        }
+    }
+
+    private Member createNewMember(KakaoUserInfoResponse userInfo) {
+        KakaoAccount kakaoAccount = userInfo.getKakao_account();
+        KakaoProfile kakaoProfile = kakaoAccount.getProfile();
+        return Member.builder()
+                .providerId(userInfo.getId())
+                .email(kakaoAccount.getEmail())
+                .nickname(kakaoProfile.getNickname())
+                .profile_url(kakaoProfile.getProfile_image_url())
+                .build();
+    }
 
 
     // 멤버 정보 조회

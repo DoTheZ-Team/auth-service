@@ -3,6 +3,7 @@ package com.justdo.plug.auth.domain.member.controller;
 import com.justdo.plug.auth.domain.member.dto.request.MemberInfoRequest;
 import com.justdo.plug.auth.domain.member.dto.response.MemberInfoResponse;
 import com.justdo.plug.auth.domain.member.service.MemberService;
+import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.JwtTokenResponse;
 import com.justdo.plug.auth.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,12 @@ import java.util.List;
 public class AuthController {
 
     private final MemberService memberService;
+
+    @GetMapping("/login")
+    @Operation(summary = "카카오 로그인", description = "전달받은 인가코드를 통해 카카오 로그인을 수행한다.")
+    public ApiResponse<JwtTokenResponse> kakaoLogin(@RequestParam String code) {
+        return ApiResponse.onSuccess(memberService.processKakaoLogin(code));
+    }
 
     @GetMapping
     @Operation(summary = "로그인 한 유저 정보 조회", description = "현재 로그인한 유저의 정보를 조회한다.")
