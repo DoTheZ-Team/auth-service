@@ -29,8 +29,8 @@ public class JwtTokenProvider {
 
     private final RedisUtils redisUtils;
 
-    public static final long ACCESS_TOKEN_EXPIRATION_TIME = 15 * 60 * 1000; // 15분
-    public static final long REFRESH_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000; // 7일
+    public static final long ACCESS_TOKEN_EXPIRATION_TIME = 365L * 24 * 60 * 60 * 1000; // 1년
+    public static final long REFRESH_TOKEN_EXPIRATION_TIME = 365L * 24 * 60 * 60 * 1000; // 1년
 
     private SecretKey getSecretKey() {
         String keyBase64Encoded = Base64.getEncoder().encodeToString(secretKey.getBytes());
