@@ -25,11 +25,11 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.access-expiration-token}")
-    public static long ACCESS_TOKEN_EXPIRATION_TIME;
+    @Value("${jwt.access-expiration-time}")
+    private long ACCESS_TOKEN_EXPIRATION_TIME;
 
-    @Value("${jwt.refresh-expiration-token")
-    public static long REFRESH_TOKEN_EXPIRATION_TIME;
+    @Value("${jwt.refresh-expiration-time}")
+    private long REFRESH_TOKEN_EXPIRATION_TIME;
 
     private final RedisUtils redisUtils;
 
@@ -42,27 +42,33 @@ public class JwtTokenProvider {
         return new Date(System.currentTimeMillis() + expirationTime);
     }
 
-    public String generateAccessToken(Long userId) {
+    public String generateAccessToken(Long memberId) {
         Date expiryDate = getExpiryDate(ACCESS_TOKEN_EXPIRATION_TIME);
         SecretKey secretKey = getSecretKey();
 
         return Jwts.builder()
                 .subject("accessToken")
                 .expiration(expiryDate)
-                .claim("userId", userId)
+                .claim("memberId", memberId)
                 .signWith(secretKey)
                 .compact();
     }
 
-    public String generateRefreshToken() {
+    public String generateRefreshToken(Long memberId) {
         Date expiryDate = getExpiryDate(REFRESH_TOKEN_EXPIRATION_TIME);
         SecretKey secretKey = getSecretKey();
 
-        return Jwts.builder()
+        String refreshToken = Jwts.builder()
                 .subject("refreshToken")
                 .expiration(expiryDate)
                 .signWith(secretKey)
                 .compact();
+        try {
+            redisUtils.setData(memberId.toString(), refreshToken, REFRESH_TOKEN_EXPIRATION_TIME);
+        } catch (RedisConnectionException | DataAccessException e) {
+            throw new ApiException(ErrorStatus._REDIS_OPERATION_ERROR);
+        }
+        return refreshToken;
     }
 
     // userId 추출
@@ -70,7 +76,8 @@ public class JwtTokenProvider {
         try {
             SecretKey secretKey = getSecretKey();
 
-            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userId",Long.class);
+            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+                    .get("memberId", Long.class);
 
         } catch (JwtException e) {
             return null;
@@ -83,8 +90,8 @@ public class JwtTokenProvider {
         }
     }
 
-    public void validateStoredRefreshToken(String userId, String refreshToken) {
-        String storedRefreshToken = redisUtils.getData(userId);
+    public void validateStoredRefreshToken(String memberId, String refreshToken) {
+        String storedRefreshToken = redisUtils.getData(memberId);
         if (!refreshToken.equals(storedRefreshToken)) {
             throw new ApiException(ErrorStatus._INVALID_REFRESH_TOKEN);
         }
@@ -93,10 +100,10 @@ public class JwtTokenProvider {
     public void deleteRefreshToken(String accessToken) {
         checkToken(accessToken);
 
-        Long userId = extractUserIdFromToken(accessToken);
+        Long memberId = extractUserIdFromToken(accessToken);
 
         try {
-            redisUtils.deleteData(userId.toString());
+            redisUtils.deleteData(memberId.toString());
         } catch (RedisConnectionException | DataAccessException e) {
             throw new ApiException(ErrorStatus._REDIS_OPERATION_ERROR);
         }
@@ -112,13 +119,13 @@ public class JwtTokenProvider {
     public Long extractUserIdFromToken(String jwtToken) {
         String jwt = jwtToken.substring(7);
 
-        Long userId = getUserIdFromToken(jwt);
+        Long memberId = getUserIdFromToken(jwt);
 
-        if (userId == null) {
+        if (memberId == null) {
             throw new ApiException(ErrorStatus._UNAUTHORIZED);
         }
 
-        return userId;
+        return memberId;
     }
 
     // 토큰 유효성 검사

@@ -2,13 +2,15 @@ package com.justdo.plug.auth.domain.member;
 
 import com.justdo.plug.auth.domain.common.BaseTimeEntity;
 import com.justdo.plug.auth.domain.member.dto.request.MemberInfoRequest;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -36,14 +38,16 @@ public class Member extends BaseTimeEntity {
 
 
     @Builder
-    public Member(Long providerId,String email, String profile_url, String nickname) {
+    public Member(Long providerId, String provider, String email, String profileUrl,
+            String nickname) {
         this.providerId = providerId;
-        this.nickname = nickname;
+        this.provider = provider;
         this.email = email;
         this.profileUrl = profileUrl;
+        this.nickname = nickname;
     }
 
-    public void updateMember(MemberInfoRequest request){
+    public void updateMember(MemberInfoRequest request) {
         this.email = request.getEmail();
         this.profileUrl = request.getProfileUrl();
         this.nickname = request.getNickname();
