@@ -31,7 +31,6 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-expiration-token")
     public static long REFRESH_TOKEN_EXPIRATION_TIME;
 
-
     private final RedisUtils redisUtils;
 
     private SecretKey getSecretKey() {
