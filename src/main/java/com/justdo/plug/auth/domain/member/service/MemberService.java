@@ -15,15 +15,11 @@ import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoTokenR
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoUserInfoResponse;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
 import com.justdo.plug.auth.global.utils.redis.RedisUtils;
-import io.lettuce.core.RedisConnectionException;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static com.justdo.plug.auth.global.jwt.JwtTokenProvider.REFRESH_TOKEN_EXPIRATION_TIME;
 
 @Service
 @RequiredArgsConstructor
@@ -36,31 +32,30 @@ public class MemberService {
     private final KakaoTokenJsonData kakaoTokenJsonData;
     private final KakaoUserInfoJsonData kakaoUserInfoJsonData;
 
-
     // 카카오 로그인 처리
     @Transactional
     public JwtTokenResponse processKakaoLogin(String code) {
         KakaoTokenResponse tokenResponse = kakaoTokenJsonData.getToken(code);
-        KakaoUserInfoResponse userInfo = kakaoUserInfoJsonData.getUserInfo(tokenResponse.getAccess_token());
-        registerMemberIfNew(userInfo);
+        KakaoUserInfoResponse userInfo = kakaoUserInfoJsonData.getUserInfo(
+                tokenResponse.getAccess_token());
+        Long memberId = registerMemberIfNew(userInfo);
 
-        String accessToken = jwtTokenProvider.generateAccessToken(userInfo.getId());
-        String refreshToken = jwtTokenProvider.generateRefreshToken();
-
-        try {
-            redisUtils.setData(userInfo.getId().toString(),refreshToken,REFRESH_TOKEN_EXPIRATION_TIME);
-        } catch (RedisConnectionException | DataAccessException e) {
-            throw new ApiException(ErrorStatus._REDIS_OPERATION_ERROR);
-        }
+        // Member id로 JWT Token 생성
+        String accessToken = jwtTokenProvider.generateAccessToken(memberId);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(memberId);
 
         return JwtTokenResponse.createJwtTokenResponse(accessToken, refreshToken);
     }
 
-    private void registerMemberIfNew(KakaoUserInfoResponse userInfo) {
-        if (!memberRepository.existsByProviderId(userInfo.getId())) {
-            Member newMember = createNewMember(userInfo);
-            memberRepository.save(newMember);
-        }
+    private Long registerMemberIfNew(KakaoUserInfoResponse userInfo) {
+
+        Optional<Member> optionalMember = memberRepository.findByProviderId(userInfo.getId());
+        return optionalMember.map(Member::getId)
+                .orElseGet(() -> {
+                    Member newMember = createNewMember(userInfo);
+                    Member saveMember = memberRepository.save(newMember);
+                    return saveMember.getId();
+                });
     }
 
     private Member createNewMember(KakaoUserInfoResponse userInfo) {
@@ -68,9 +63,10 @@ public class MemberService {
         KakaoProfile kakaoProfile = kakaoAccount.getProfile();
         return Member.builder()
                 .providerId(userInfo.getId())
+                .provider("kakao")
                 .email(kakaoAccount.getEmail())
                 .nickname(kakaoProfile.getNickname())
-                .profile_url(kakaoProfile.getProfile_image_url())
+                .profileUrl(kakaoProfile.getProfile_image_url())
                 .build();
     }
 
@@ -89,7 +85,7 @@ public class MemberService {
     // 멤버 정보 수정
     @Transactional
     public MemberInfoResponse updateMemberInfo(String accessToken,
-        MemberInfoRequest memberInfoRequest) {
+            MemberInfoRequest memberInfoRequest) {
         jwtTokenProvider.checkToken(accessToken);
 
         Long userId = jwtTokenProvider.extractUserIdFromToken(accessToken);
@@ -124,14 +120,14 @@ public class MemberService {
     public List<String> getMemberNicknames(List<Long> memberIdList) {
 
         return memberRepository.findAllMemberIdList(memberIdList).stream()
-            .map(Member::getNickname)
-            .toList();
+                .map(Member::getNickname)
+                .toList();
     }
 
     // 특정 멤버 검색
     private Member findMember(Long userId) {
         return memberRepository.findById(userId).orElseThrow(
-            () -> new ApiException(ErrorStatus._MEMBER_NOT_FOUND_ERROR));
+                () -> new ApiException(ErrorStatus._MEMBER_NOT_FOUND_ERROR));
     }
 
     public String findMemberName(Long memberId) {
