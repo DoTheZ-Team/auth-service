@@ -15,20 +15,20 @@ public class MemberInfoResponse {
     @Schema(description = "유저 닉네임",example = "정성실")
     private String nickname;
     @Schema(description = "유저 프로필 url",example = "https://xxx.xxx.asdf")
-    private String profile_url;
+    private String profileUrl;
 
     @Builder
-    public MemberInfoResponse(String email, String nickname, String profile_url) {
+    public MemberInfoResponse(String email, String nickname, String profileUrl) {
         this.email = email;
         this.nickname = nickname;
-        this.profile_url = profile_url;
+        this.profileUrl = profileUrl;
     }
 
     public static MemberInfoResponse mapMemberToMemberInfoResponse(Member member) {
         return MemberInfoResponse.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .profile_url(member.getProfile_url())
+                .profileUrl(member.getProfileUrl())
                 .build();
     }
 }

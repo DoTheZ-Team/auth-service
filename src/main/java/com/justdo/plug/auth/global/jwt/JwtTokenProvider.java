@@ -8,15 +8,14 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.lettuce.core.RedisConnectionException;
+import java.util.Base64;
+import java.util.Date;
+import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
-import java.util.Base64;
-import java.util.Date;
 
 @Component
 @Slf4j
@@ -26,11 +25,13 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    @Value("${jwt.access-expiration-token}")
+    public static long ACCESS_TOKEN_EXPIRATION_TIME;
+
+    @Value("${jwt.refresh-expiration-token")
+    public static long REFRESH_TOKEN_EXPIRATION_TIME;
 
     private final RedisUtils redisUtils;
-
-    public static final long ACCESS_TOKEN_EXPIRATION_TIME = 365L * 24 * 60 * 60 * 1000; // 1년
-    public static final long REFRESH_TOKEN_EXPIRATION_TIME = 365L * 24 * 60 * 60 * 1000; // 1년
 
     private SecretKey getSecretKey() {
         String keyBase64Encoded = Base64.getEncoder().encodeToString(secretKey.getBytes());

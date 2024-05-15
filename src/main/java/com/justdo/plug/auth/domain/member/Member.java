@@ -32,23 +32,20 @@ public class Member extends BaseTimeEntity {
     @Column(length = 20)
     private String nickname;
 
-    private String profile_url;
+    private String profileUrl;
 
-    private Boolean state;
-
-    private LocalDateTime inactive_date;
 
     @Builder
     public Member(Long providerId,String email, String profile_url, String nickname) {
         this.providerId = providerId;
         this.nickname = nickname;
         this.email = email;
-        this.profile_url = profile_url;
+        this.profileUrl = profileUrl;
     }
 
     public void updateMember(MemberInfoRequest request){
         this.email = request.getEmail();
-        this.profile_url = request.getProfile_url();
+        this.profileUrl = request.getProfileUrl();
         this.nickname = request.getNickname();
     }
 
