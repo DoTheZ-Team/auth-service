@@ -15,11 +15,12 @@ import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoTokenR
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoUserInfoResponse;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
 import com.justdo.plug.auth.global.utils.redis.RedisUtils;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -111,7 +112,7 @@ public class MemberService {
         jwtTokenProvider.validateRefreshToken(refreshToken);
         Long userId = jwtTokenProvider.extractUserIdFromToken(accessToken);
 
-        jwtTokenProvider.validateStoredRefreshToken(userId.toString(), refreshToken);
+//        jwtTokenProvider.validateStoredRefreshToken(userId.toString(), refreshToken);
 
         return jwtTokenProvider.generateAccessToken(userId);
     }
