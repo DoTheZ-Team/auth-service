@@ -24,14 +24,14 @@ public class AuthController {
 
     private final MemberService memberService;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     @Operation(summary = "카카오 로그인", description = "전달받은 인가코드를 통해 카카오 로그인을 수행한다.")
     public ApiResponse<JwtTokenResponse> kakaoLogin(@RequestParam String code) {
         return ApiResponse.onSuccess(memberService.processKakaoLogin(code));
     }
 
     @GetMapping
-    @Operation(summary = "로그인 한 유저 정보 조회", description = "현재 로그인한 유저의 정보를 조회한다.")
+    @Operation(summary = "로그인 한 유저 정보 조회", description = "Open feign 요청입니다. / 현재 로그인한 유저의 정보를 조회한다.")
     public MemberInfoResponse getMyInfo(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");
         return memberService.getMemberInfo(accessToken);
@@ -54,21 +54,24 @@ public class AuthController {
 
     @PostMapping("/logout")
     @Operation(summary = "로그인 한 유저 로그아웃", description = "현재 로그인한 유저의 로그아웃을 수행한다.")
-    public void logout(HttpServletRequest request) {
+    public ApiResponse<Object> logout(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");
         memberService.logout(accessToken);
+
+        return ApiResponse.onSuccess(null);
     }
 
 
     @PostMapping("/reissue")
     @Operation(summary = "로그인 한 유저 access 토큰 재발급", description = "현재 로그인한 유저의 access 토큰을 재발급한다.")
-    public void refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
+    public ApiResponse<Object> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = request.getHeader("Authorization");
         String refreshToken = request.getHeader("Authorization-refresh");
 
         String newAccessToken = memberService.reissueAccessToken(accessToken, refreshToken);
 
         response.setHeader("Authorization", newAccessToken);
+        return ApiResponse.onSuccess(null);
     }
 
     @PostMapping("/blogs")
