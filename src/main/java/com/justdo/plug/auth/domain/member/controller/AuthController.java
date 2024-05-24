@@ -19,25 +19,30 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/auths")
 @Slf4j
-@Tag(name = "AuthController")
+@Tag(name = "Auth 관련 API입니다.")
 public class AuthController {
 
     private final MemberService memberService;
 
     @PostMapping("/login")
-    @Operation(summary = "카카오 로그인", description = "전달받은 인가코드를 통해 카카오 로그인을 수행한다.")
+    @Operation(summary = "로그인 페이지 - 카카오 로그인/회원가입을 수행합니다.",
+            description = "프론트 측에서 카카오로부터 전달받은 인가코드를 통해 카카오를 통한 소셜 로그인/회원가입을 진행합니다." +
+                    "응답에는 JWT access token, refresh token이 포함됩니다.")
     public ApiResponse<JwtTokenResponse> kakaoLogin(@RequestParam String code) {
         return ApiResponse.onSuccess(memberService.processKakaoLogin(code));
     }
 
     @GetMapping
-    @Operation(summary = "로그인 한 유저 정보 조회", description = "Open feign 요청입니다. / 현재 로그인한 유저의 정보를 조회한다.")
+    @Operation(summary = "Open Feign 요청입니다 - 로그인 한 유저 정보를 조회합니다.",
+            description = "Authorization 헤더의 access token 값을 기반으로" +
+                    "현재 로그인한 유저의 정보를 조회합니다. ")
     public MemberInfoResponse getMyInfo(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");
         return memberService.getMemberInfo(accessToken);
     }
 
-    @Operation(summary = "블로그 주인의 닉네임을 조회합니다. ", description = "Open feign 요청입니다.")
+    @Operation(summary = "Open Feign 요청입니다 - 블로그 주인의 닉네임을 조회합니다.",
+            description = "memberId를 요청받아 특정 블로그 주인의 닉네임을 조회합니다.")
     @GetMapping("/blogs/{memberId}")
     public String getMemberName(@PathVariable Long memberId) {
 
@@ -45,7 +50,9 @@ public class AuthController {
     }
 
     @PutMapping
-    @Operation(summary = "로그인 한 유저 정보 수정", description = "현재 로그인한 유저의 정보를 수정한다.")
+    @Operation(summary = "마이페이지(수정) - 현재 로그인 한 유저의 정보를 수정합니다.",
+            description = "Authorization 헤더의 access token 값을 기반으로"
+            + "현재 로그인한 유저의 정보를 수정합니다.")
     public ApiResponse<MemberInfoResponse> updateMyInfo(HttpServletRequest request
             , @RequestBody MemberInfoRequest memberInfoRequest) {
         String accessToken = request.getHeader("Authorization");
@@ -53,7 +60,9 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "로그인 한 유저 로그아웃", description = "현재 로그인한 유저의 로그아웃을 수행한다.")
+    @Operation(summary = "마이페이지 - 현재 로그인 한 유저의 로그아웃을 수행합니다.",
+            description = "Authorization 헤더의 access token 값을 기반으로" +
+                    "현재 로그인한 유저의 로그아웃을 수행합니다.")
     public ApiResponse<Object> logout(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");
         memberService.logout(accessToken);
@@ -63,7 +72,9 @@ public class AuthController {
 
 
     @PostMapping("/reissue")
-    @Operation(summary = "로그인 한 유저 access 토큰 재발급", description = "현재 로그인한 유저의 access 토큰을 재발급한다.")
+    @Operation(summary = "페이지 X - 현재 로그인 한 유저의 access token을 재발급합니다.",
+            description = "Authorization 헤더의 access token 값과 Authorization-refresh refresh token 값을 기반으로" +
+                    "현재 로그인한 유저의 access token을 재발급합니다.")
     public ApiResponse<Object> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = request.getHeader("Authorization");
         String refreshToken = request.getHeader("Authorization-refresh");
@@ -75,7 +86,8 @@ public class AuthController {
     }
 
     @PostMapping("/blogs")
-    @Operation(summary = "유저 리스트에서 유저 닉네임 리스트 조회", description = "요청에 담긴 유저 리스트로 유저 닉네임 리스트를 조회한다.")
+    @Operation(summary = "Open Feign 요청입니다 - 유저 리스트에서 유저 닉네임 리스트를 조회합니다.",
+            description = "요청에 담긴 유저 리스트로 유저 닉네임 리스트를 조회합니다.")
     public List<String> getMemberNicknames(@RequestBody List<Long> memberIdList) {
         return memberService.getMemberNicknames(memberIdList);
     }
