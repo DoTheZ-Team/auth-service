@@ -1,7 +1,7 @@
 package com.justdo.plug.auth.domain.member.controller;
 
-import com.justdo.plug.auth.domain.member.dto.request.MemberInfoRequest;
-import com.justdo.plug.auth.domain.member.dto.response.MemberInfoResponse;
+import com.justdo.plug.auth.domain.member.dto.MemberInfoRequest;
+import com.justdo.plug.auth.domain.member.dto.MemberInfoResponse;
 import com.justdo.plug.auth.domain.member.service.MemberService;
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.JwtTokenResponse;
 import com.justdo.plug.auth.global.response.ApiResponse;
@@ -9,11 +9,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,11 +58,12 @@ public class AuthController {
     @PutMapping
     @Operation(summary = "마이페이지(수정) - 현재 로그인 한 유저의 정보를 수정합니다.",
             description = "Authorization 헤더의 access token 값을 기반으로"
-            + "현재 로그인한 유저의 정보를 수정합니다.")
+                    + "현재 로그인한 유저의 정보를 수정합니다.")
     public ApiResponse<MemberInfoResponse> updateMyInfo(HttpServletRequest request
             , @RequestBody MemberInfoRequest memberInfoRequest) {
         String accessToken = request.getHeader("Authorization");
-        return ApiResponse.onSuccess(memberService.updateMemberInfo(accessToken,memberInfoRequest));
+        return ApiResponse.onSuccess(
+                memberService.updateMemberInfo(accessToken, memberInfoRequest));
     }
 
     @PostMapping("/logout")
@@ -73,9 +80,12 @@ public class AuthController {
 
     @PostMapping("/reissue")
     @Operation(summary = "페이지 X - 현재 로그인 한 유저의 access token을 재발급합니다.",
-            description = "Authorization 헤더의 access token 값과 Authorization-refresh refresh token 값을 기반으로" +
-                    "현재 로그인한 유저의 access token을 재발급합니다.")
-    public ApiResponse<Object> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
+            description =
+                    "Authorization 헤더의 access token 값과 Authorization-refresh refresh token 값을 기반으로"
+                            +
+                            "현재 로그인한 유저의 access token을 재발급합니다.")
+    public ApiResponse<Object> refreshAccessToken(HttpServletRequest request,
+            HttpServletResponse response) {
         String accessToken = request.getHeader("Authorization");
         String refreshToken = request.getHeader("Authorization-refresh");
 
