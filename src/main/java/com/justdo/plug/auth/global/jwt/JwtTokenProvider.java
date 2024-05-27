@@ -3,7 +3,7 @@ package com.justdo.plug.auth.global.jwt;
 
 import com.justdo.plug.auth.global.exception.ApiException;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
-import com.justdo.plug.auth.global.utils.redis.RedisUtils;
+import com.justdo.plug.auth.global.utils.RedisUtils;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
