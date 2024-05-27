@@ -1,4 +1,4 @@
-package com.justdo.plug.auth.global.utils.redis;
+package com.justdo.plug.auth.global.utils;
 
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
