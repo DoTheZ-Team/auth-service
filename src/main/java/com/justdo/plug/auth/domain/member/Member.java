@@ -1,7 +1,7 @@
 package com.justdo.plug.auth.domain.member;
 
 import com.justdo.plug.auth.domain.common.BaseTimeEntity;
-import com.justdo.plug.auth.domain.member.dto.request.MemberInfoRequest;
+import com.justdo.plug.auth.domain.member.dto.MemberInfoRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,10 +31,8 @@ public class Member extends BaseTimeEntity {
     @Column(length = 10)
     private String provider;
 
-    @Column(length = 20)
+    @Column
     private String nickname;
-
-    private String profileUrl;
 
 
     @Builder
@@ -43,13 +41,11 @@ public class Member extends BaseTimeEntity {
         this.providerId = providerId;
         this.provider = provider;
         this.email = email;
-        this.profileUrl = profileUrl;
         this.nickname = nickname;
     }
 
     public void updateMember(MemberInfoRequest request) {
         this.email = request.getEmail();
-        this.profileUrl = request.getProfileUrl();
         this.nickname = request.getNickname();
     }
 

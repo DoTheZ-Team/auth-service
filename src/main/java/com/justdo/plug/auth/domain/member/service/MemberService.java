@@ -1,8 +1,8 @@
 package com.justdo.plug.auth.domain.member.service;
 
 import com.justdo.plug.auth.domain.member.Member;
-import com.justdo.plug.auth.domain.member.dto.request.MemberInfoRequest;
-import com.justdo.plug.auth.domain.member.dto.response.MemberInfoResponse;
+import com.justdo.plug.auth.domain.member.dto.MemberInfoRequest;
+import com.justdo.plug.auth.domain.member.dto.MemberInfoResponse;
 import com.justdo.plug.auth.domain.member.repository.MemberRepository;
 import com.justdo.plug.auth.global.exception.ApiException;
 import com.justdo.plug.auth.global.jwt.JwtTokenProvider;
@@ -14,7 +14,6 @@ import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.KakaoProfile;
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoTokenResponse;
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoUserInfoResponse;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
-import com.justdo.plug.auth.global.utils.redis.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,6 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisUtils redisUtils;
     private final KakaoTokenJsonData kakaoTokenJsonData;
     private final KakaoUserInfoJsonData kakaoUserInfoJsonData;
 
@@ -76,11 +74,11 @@ public class MemberService {
     public MemberInfoResponse getMemberInfo(String accessToken) {
         jwtTokenProvider.checkToken(accessToken);
 
-        Long userId = jwtTokenProvider.extractUserIdFromToken(accessToken);
+        Long memberId = jwtTokenProvider.extractUserIdFromToken(accessToken);
 
-        Member foundmMember = findMember(userId);
+        Member foundmMember = findMember(memberId);
 
-        return MemberInfoResponse.mapMemberToMemberInfoResponse(foundmMember);
+        return MemberInfoResponse.toMemberInfoResponse(foundmMember);
     }
 
     // 멤버 정보 수정
@@ -89,13 +87,13 @@ public class MemberService {
             MemberInfoRequest memberInfoRequest) {
         jwtTokenProvider.checkToken(accessToken);
 
-        Long userId = jwtTokenProvider.extractUserIdFromToken(accessToken);
+        Long memberId = jwtTokenProvider.extractUserIdFromToken(accessToken);
 
-        Member foundMember = findMember(userId);
+        Member foundMember = findMember(memberId);
 
         foundMember.updateMember(memberInfoRequest);
 
-        return MemberInfoResponse.mapMemberToMemberInfoResponse(foundMember);
+        return MemberInfoResponse.toMemberInfoResponse(foundMember);
     }
 
     // 로그아웃
