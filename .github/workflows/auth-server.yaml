@@ -29,6 +29,9 @@ jobs:
           touch ./application.yml
           echo "${{ secrets.APPLICATION }}" >> ./application.yml
         shell: bash
+        
+      - name: Grant execute permission for gradlew
+        run : chmod +x gradlew
 
       # gradlew 권한 변경
       - name: Grant execute permission for gradlew
@@ -68,7 +71,7 @@ jobs:
 
       - name: Update image in deployment file
         run: |
-          yq e '.spec.template.spec.containers[0].image = "${{ secrets.GLUE_PROJECT }}/glue-repository/glue-auth:${{ github.sha }}"' ./k8s-template/auth-deployment.yaml -i
+          yq e '.spec.template.spec.containers[1].image = "${{ secrets.GLUE_PROJECT }}/glue-repository/glue-auth:${{ github.sha }}"' ./k8s-template/auth-deployment.yaml -i
 
       - name: Commit and Push changes
         run: |
