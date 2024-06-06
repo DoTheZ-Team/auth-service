@@ -1,5 +1,6 @@
 package com.justdo.plug.auth.domain.member.service;
 
+import com.justdo.plug.auth.domain.blog.BlogClient;
 import com.justdo.plug.auth.domain.member.Member;
 import com.justdo.plug.auth.domain.member.dto.MemberInfoRequest;
 import com.justdo.plug.auth.domain.member.dto.MemberInfoResponse;
@@ -29,6 +30,7 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoTokenJsonData kakaoTokenJsonData;
     private final KakaoUserInfoJsonData kakaoUserInfoJsonData;
+    private final BlogClient blogClient;
 
     // 카카오 로그인 처리
     @Transactional
@@ -53,6 +55,7 @@ public class MemberService {
                 .orElseGet(() -> {
                     Member newMember = createNewMember(userInfo);
                     Member saveMember = memberRepository.save(newMember);
+                    blogClient.createBlog(saveMember.getId());
                     return saveMember.getId();
                 });
     }
