@@ -16,7 +16,7 @@ public class MemberInfoRequest {
     private String nickname;
 
     @Builder
-    public MemberInfoRequest(String email, String nickname, String profileUrl) {
+    public MemberInfoRequest(String email, String nickname) {
         this.email = email;
         this.nickname = nickname;
     }
