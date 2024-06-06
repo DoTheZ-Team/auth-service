@@ -15,7 +15,9 @@ import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.KakaoProfile;
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoTokenResponse;
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoUserInfoResponse;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,25 +41,35 @@ public class MemberService {
         KakaoTokenResponse tokenResponse = kakaoTokenJsonData.getToken(code);
         KakaoUserInfoResponse userInfo = kakaoUserInfoJsonData.getUserInfo(
                 tokenResponse.getAccess_token());
-        Long memberId = registerMemberIfNew(userInfo);
 
-        // Member id로 JWT Token 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(memberId);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(memberId);
+        Map<String, Long> resultMap = registerMemberIfNew(userInfo);
+
+        String accessToken = jwtTokenProvider.generateAccessToken(resultMap.get("memberId"), resultMap.get("blogId"));
+        String refreshToken = jwtTokenProvider.generateRefreshToken(resultMap.get("memberId"));
 
         return JwtTokenResponse.createJwtTokenResponse(accessToken, refreshToken);
     }
 
-    private Long registerMemberIfNew(KakaoUserInfoResponse userInfo) {
+    private Map<String, Long> registerMemberIfNew(KakaoUserInfoResponse userInfo) {
 
         Optional<Member> optionalMember = memberRepository.findByProviderId(userInfo.getId());
-        return optionalMember.map(Member::getId)
-                .orElseGet(() -> {
-                    Member newMember = createNewMember(userInfo);
-                    Member saveMember = memberRepository.save(newMember);
-                    blogClient.createBlog(saveMember.getId());
-                    return saveMember.getId();
-                });
+        HashMap<String, Long> resultMap = new HashMap<>();
+
+        if (optionalMember.isPresent()) {
+            Member existMember = optionalMember.get();
+            Long blogId = blogClient.getBlogId(existMember.getId());
+
+            resultMap.put("memberId", existMember.getId());
+            resultMap.put("blogId", blogId);
+        } else {
+            Member newMember = createNewMember(userInfo);
+            Member savedMember = memberRepository.save(newMember);
+            Long blogId = blogClient.createBlog(savedMember.getId());
+
+            resultMap.put("memberId", savedMember.getId());
+            resultMap.put("blogId", blogId);
+        }
+        return resultMap;
     }
 
     private Member createNewMember(KakaoUserInfoResponse userInfo) {
@@ -109,11 +121,10 @@ public class MemberService {
         jwtTokenProvider.checkToken(accessToken);
 
         jwtTokenProvider.validateRefreshToken(refreshToken);
-        Long userId = jwtTokenProvider.extractUserIdFromToken(accessToken);
+        Long memberId = jwtTokenProvider.extractUserIdFromToken(accessToken);
+        Long blogId = blogClient.getBlogId(memberId);
 
-//        jwtTokenProvider.validateStoredRefreshToken(userId.toString(), refreshToken);
-
-        return jwtTokenProvider.generateAccessToken(userId);
+        return jwtTokenProvider.generateAccessToken(memberId, blogId);
     }
 
     // 유저 리스트에서 유저 닉네임 리스트 조회

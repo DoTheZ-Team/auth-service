@@ -42,7 +42,7 @@ public class JwtTokenProvider {
         return new Date(System.currentTimeMillis() + expirationTime);
     }
 
-    public String generateAccessToken(Long memberId) {
+    public String generateAccessToken(Long memberId, Long blogId) {
         Date expiryDate = getExpiryDate(ACCESS_TOKEN_EXPIRATION_TIME);
         SecretKey secretKey = getSecretKey();
 
@@ -50,6 +50,7 @@ public class JwtTokenProvider {
                 .subject("accessToken")
                 .expiration(expiryDate)
                 .claim("memberId", memberId)
+                .claim("blogId", blogId)
                 .signWith(secretKey)
                 .compact();
     }
