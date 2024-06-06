@@ -14,12 +14,11 @@ import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.KakaoProfile;
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoTokenResponse;
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoUserInfoResponse;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +33,7 @@ public class MemberService {
     // 카카오 로그인 처리
     @Transactional
     public JwtTokenResponse processKakaoLogin(String code) {
+
         KakaoTokenResponse tokenResponse = kakaoTokenJsonData.getToken(code);
         KakaoUserInfoResponse userInfo = kakaoUserInfoJsonData.getUserInfo(
                 tokenResponse.getAccess_token());
@@ -58,24 +58,24 @@ public class MemberService {
     }
 
     private Member createNewMember(KakaoUserInfoResponse userInfo) {
+
         KakaoAccount kakaoAccount = userInfo.getKakao_account();
         KakaoProfile kakaoProfile = kakaoAccount.getProfile();
+
         return Member.builder()
                 .providerId(userInfo.getId())
                 .provider("kakao")
                 .email(kakaoAccount.getEmail())
                 .nickname(kakaoProfile.getNickname())
-                .profileUrl(kakaoProfile.getProfile_image_url())
                 .build();
     }
 
 
     // 멤버 정보 조회
     public MemberInfoResponse getMemberInfo(String accessToken) {
+
         jwtTokenProvider.checkToken(accessToken);
-
         Long memberId = jwtTokenProvider.extractUserIdFromToken(accessToken);
-
         Member foundmMember = findMember(memberId);
 
         return MemberInfoResponse.toMemberInfoResponse(foundmMember);
@@ -85,12 +85,10 @@ public class MemberService {
     @Transactional
     public MemberInfoResponse updateMemberInfo(String accessToken,
             MemberInfoRequest memberInfoRequest) {
+
         jwtTokenProvider.checkToken(accessToken);
-
         Long memberId = jwtTokenProvider.extractUserIdFromToken(accessToken);
-
         Member foundMember = findMember(memberId);
-
         foundMember.updateMember(memberInfoRequest);
 
         return MemberInfoResponse.toMemberInfoResponse(foundMember);
