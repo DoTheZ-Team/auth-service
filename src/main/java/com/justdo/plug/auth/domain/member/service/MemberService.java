@@ -15,13 +15,14 @@ import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.KakaoProfile;
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoTokenResponse;
 import com.justdo.plug.auth.global.jwt.kakao.preVersion.dto.response.KakaoUserInfoResponse;
 import com.justdo.plug.auth.global.response.code.status.ErrorStatus;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class MemberService {
         String accessToken = jwtTokenProvider.generateAccessToken(resultMap.get("memberId"), resultMap.get("blogId"));
         String refreshToken = jwtTokenProvider.generateRefreshToken(resultMap.get("memberId"));
 
-        return JwtTokenResponse.createJwtTokenResponse(accessToken, refreshToken);
+        return JwtTokenResponse.createJwtTokenResponse(accessToken, refreshToken,resultMap.get("blogId"));
     }
 
     private Map<String, Long> registerMemberIfNew(KakaoUserInfoResponse userInfo) {
