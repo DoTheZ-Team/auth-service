@@ -10,7 +10,7 @@
 
 <br>
 
-GLUE 서비스의 Post Service에 방문해주셔서 감사합니다. 해당 Repository는 GLUE 서비스의 게시글 CRUD기능을 포함한 검색 쿼리에 대한 내용을 담고 있습니다. 
+GLUE 서비스의 Auth Service에 방문해주셔서 감사합니다. 해당 Repository는 GLUE 서비스의 게시글 CRUD기능을 포함한 검색 쿼리에 대한 내용을 담고 있습니다. 
 (#). 
 <br>
 
